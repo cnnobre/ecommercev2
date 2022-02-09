@@ -17,7 +17,7 @@ class Product extends Model {
 
 	}
 
-	public static function checkList($list)
+    public static function checkList($list)
 	{
 
 		foreach ($list as &$row) {
@@ -110,10 +110,10 @@ class Product extends Model {
 		return $values;
 
 	}
-
+    /*
 	public function setPhoto($file)
 	{
-
+        
 		$extension = explode('.', $file['name']);
 		$extension = end($extension);
 
@@ -147,7 +147,7 @@ class Product extends Model {
 
 		$this->checkPhoto();
 
-	}
+	}*/
 	
 }
 
