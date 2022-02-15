@@ -7,7 +7,7 @@ use Rain\Tpl;
 class Mailer {
 
     const USERNAME = "c.n.nobre@gmail.com";
-    const PASSWORD = "colo que a senha";
+    const PASSWORD = "coloque a senha";
     const NAME_FROM = "Hcode Store";
 
     private $mail; 
@@ -23,7 +23,7 @@ class Mailer {
 
         Tpl::configure( $config );
 
-        tpl = new Tpl;
+        $tpl = new Tpl;
 
         foreach ($data as $key => $value) {
 			$tpl->assign($key, $value);
