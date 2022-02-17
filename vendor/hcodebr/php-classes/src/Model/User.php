@@ -8,8 +8,8 @@ use \Hcode\Mailer;
 
 class User extends Model {
 
-    const SESSION = "User";
-    const SECRET = "HcodePhp7_Secret";
+	const SESSION = "User";
+	const SECRET = "HcodePhp7_Secret";
 	const SECRET_IV = "HcodePhp7_Secret_IV";
 	const ERROR = "UserError";
 	const ERROR_REGISTER = "UserErrorRegister";
@@ -23,7 +23,7 @@ class User extends Model {
         if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
 
             $user->setData($_SESSION[User::SESSION]);
-            
+
 
         }
 
@@ -71,7 +71,7 @@ class User extends Model {
 
 		$results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b ON a.idperson = b.idperson WHERE a.deslogin = :LOGIN", array(
 			":LOGIN"=>$login
-		)); 
+		));
 
 		if (count($results) === 0)
 		{
@@ -136,7 +136,7 @@ class User extends Model {
     {
 
         $sql = new Sql();
-      
+
         $results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
 			":desperson"=>utf8_decode($this->getdesperson()),
 			":deslogin"=>$this->getdeslogin(),
@@ -173,7 +173,7 @@ class User extends Model {
     {
 
         $sql = new Sql();
-      
+
         $results = $sql->select("CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
 			":iduser"=>$this->getiduser(),
 			":desperson"=>utf8_decode($this->getdesperson()),
@@ -184,7 +184,7 @@ class User extends Model {
 			":inadmin"=>$this->getinadmin()
         ));
 
-        $this->setData($results[0]); 
+        $this->setData($results[0]);
 
     }
 
@@ -212,12 +212,12 @@ class User extends Model {
         ", array(
             ":email"=>$email
         ));
-        
+
         if (count($results) === 0)
         {
             throw new \Exception("Não foi possível recuperar a senha.");
-            
-        } 
+
+        }
         else
         {
 
@@ -238,7 +238,7 @@ class User extends Model {
             {
 
                 $dataRecovery = $results2[0];
-                
+
                 $code = openssl_encrypt($dataRecovery['idrecovery'], 'AES-128-CBC', pack("a16", User::SECRET), 0, pack("a16", User::SECRET_IV));
 
 				$code = base64_encode($code);
@@ -250,18 +250,18 @@ class User extends Model {
 				} else {
 
 					$link = "http://www.hcodecommerce.com.br/forgot/reset?code=$code";
-					
+
 				}
-            
+
                 $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir senha da Hcode Store", "forgot", array(
 					"name"=>$data['desperson'],
 					"link"=>$link
-				));				
+				));
 
 				$mailer->send();
 
 				return $link;
-			
+
             }
 
         }
@@ -327,7 +327,7 @@ class User extends Model {
 		));
 
 	}
-    
+
     public static function setError($msg)
 	{
 
@@ -430,12 +430,12 @@ class User extends Model {
 
         $sql = new Sql();
 
-		$results = $sql->select("SELECT * 
-			FROM tb_orders a  
-			INNER JOIN tb_ordersstatus b USING(idstatus) 
+		$results = $sql->select("SELECT *
+			FROM tb_orders a
+			INNER JOIN tb_ordersstatus b USING(idstatus)
 			INNER JOIN tb_carts c USING(idcart)
 			INNER JOIN tb_users d ON d.iduser = a.iduser
-			INNER JOIN tb_addresses e USING(idaddress)   
+			INNER JOIN tb_addresses e USING(idaddress)
 			INNER JOIN tb_persons f ON f.idperson = d.idperson
 			WHERE a.iduser = :iduser
 		", [
@@ -445,6 +445,57 @@ class User extends Model {
         return $results;
 
     }
+
+	public static function getPage($page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_users a
+			INNER JOIN tb_persons b USING(idperson)
+			ORDER BY b.desperson
+			LIMIT $start, $itemsPerPage;
+		");
+
+		$resultsTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultsTotal[0]["nrtotal"],
+			'pages'=>ceil($resultsTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
+	public static function getPageSearch($search, $page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_users a
+			INNER JOIN tb_persons b USING(idperson)
+			WHERE b.desperson LIKE :search OR b.desemail = :search OR a.deslogin LIKE :search
+			ORDER BY b.desperson
+			LIMIT $start, $itemsPerPage;
+		", [
+			':search' => '%'.$search.'%'
+		]);
+
+		$resultsTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultsTotal[0]["nrtotal"],
+			'pages'=>ceil($resultsTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
 
 
 }
