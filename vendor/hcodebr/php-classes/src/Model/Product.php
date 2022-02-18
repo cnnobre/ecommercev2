@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Hcode\Model;
 
@@ -21,7 +21,7 @@ class Product extends Model {
 	{
 
 		foreach ($list as &$row) {
-			
+
 			$p = new Product();
 			$p->setData($row);
 			$row = $p->getValues();
@@ -80,11 +80,11 @@ class Product extends Model {
 	{
 
 		if (file_exists(
-			$_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 
-			"res" . DIRECTORY_SEPARATOR . 
-			"site" . DIRECTORY_SEPARATOR . 
-			"img" . DIRECTORY_SEPARATOR . 
-			"products" . DIRECTORY_SEPARATOR . 
+			$_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR .
+			"res" . DIRECTORY_SEPARATOR .
+			"site" . DIRECTORY_SEPARATOR .
+			"img" . DIRECTORY_SEPARATOR .
+			"products" . DIRECTORY_SEPARATOR .
 			$this->getidproduct() . ".jpg"
 			)) {
 
@@ -113,7 +113,7 @@ class Product extends Model {
     /*
 	public function setPhoto($file)
 	{
-        
+
 		$extension = explode('.', $file['name']);
 		$extension = end($extension);
 
@@ -134,15 +134,15 @@ class Product extends Model {
 
 		}
 
-		$dist = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 
-			"res" . DIRECTORY_SEPARATOR . 
-			"site" . DIRECTORY_SEPARATOR . 
-			"img" . DIRECTORY_SEPARATOR . 
-			"products" . DIRECTORY_SEPARATOR . 
+		$dist = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR .
+			"res" . DIRECTORY_SEPARATOR .
+			"site" . DIRECTORY_SEPARATOR .
+			"img" . DIRECTORY_SEPARATOR .
+			"products" . DIRECTORY_SEPARATOR .
 			$this->getidproduct() . ".jpg";
 
 		imagejpeg($image, $dist);
-        
+
 		imagedestroy($image);
 
 		$this->checkPhoto();
@@ -174,7 +174,56 @@ class Product extends Model {
 		]);
 
 	}
-	
+
+	public static function getPage($page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_products
+			ORDER BY desproduct
+			LIMIT $start, $itemsPerPage;
+		");
+
+		$resultsTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultsTotal[0]["nrtotal"],
+			'pages'=>ceil($resultsTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
+	public static function getPageSearch($search, $page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_products
+			WHERE desproduct LIKE :search
+			ORDER BY desproduct
+			LIMIT $start, $itemsPerPage;
+		", [
+			':search' => '%'.$search.'%'
+		]);
+
+		$resultsTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultsTotal[0]["nrtotal"],
+			'pages'=>ceil($resultsTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
 }
 
 ?>
