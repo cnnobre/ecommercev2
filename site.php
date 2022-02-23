@@ -10,7 +10,7 @@ use \Hcode\Model\OrderStatus;
 use \Hcode\Model\User;
 
 $app->get('/', function() {
-    
+
     $products = Product::listAll();
 
 	$page = new Page();
@@ -33,7 +33,7 @@ $app->get("/categories/:idcategory", function($idcategory){
 
 	$pages = [];
 
-	for ($i=1; $i <= $pagination['pages']; $i++) { 
+	for ($i=1; $i <= $pagination['pages']; $i++) {
 		array_push($pages, [
 			'link'=>'/categories/'.$category->getidcategory().'?page='.$i,
 			'page'=>$i
@@ -83,19 +83,19 @@ $app->get("/cart", function(){
 $app->get("/cart/:idproduct/add", function($idproduct){
 
 	$product = new Product();
-	
+
 	$product->get((int)$idproduct);
 
 	$cart = Cart::getFromSession();
 
 	$qtd = (isset($_GET['qtd'])) ? (int)$_GET['qtd'] : 1;
 
-	for ($i=0; $i < $qtd; $i++) { 
+	for ($i=0; $i < $qtd; $i++) {
 
 		$cart->addProduct($product);
-	
+
 	}
-	
+
 	header("Location: /cart");
 	exit;
 
@@ -104,7 +104,7 @@ $app->get("/cart/:idproduct/add", function($idproduct){
 $app->get("/cart/:idproduct/minus", function($idproduct){
 
 	$product = new Product();
-	
+
 	$product->get((int)$idproduct);
 
 	$cart = Cart::getFromSession();
@@ -119,7 +119,7 @@ $app->get("/cart/:idproduct/minus", function($idproduct){
 $app->get("/cart/:idproduct/remove", function($idproduct){
 
 	$product = new Product();
-	
+
 	$product->get((int)$idproduct);
 
 	$cart = Cart::getFromSession();
@@ -175,7 +175,7 @@ $app->get("/checkout", function(){
 	if (!$address->getdesstate()) $address->setdesstate('');
 	if (!$address->getdescountry()) $address->setdescountry('');
 	if (!$address->getdeszipcode()) $address->setdeszipcode('');
- 
+
 	$page = new Page();
 
 	$page->setTpl("checkout", [
@@ -281,7 +281,7 @@ $app->post("/login", function(){
 
 		User::setError($e->getMessage());
 
-	}	
+	}
 
 	header("Location: /checkout");
 	exit;
@@ -308,7 +308,7 @@ $app->post("/register", function(){
 		exit;
 
 	}
-	
+
 	if (!isset($_POST['email']) || $_POST['email'] == ''){
 
 		User::setErrorRegister("Preencha o seu e-mail.");
@@ -341,7 +341,7 @@ $app->post("/register", function(){
 		'desperson'=>$_POST['name'],
 		'desemail'=>$_POST['email'],
 		'despassword'=>$_POST['password'],
-		'nrphone'=>$_POST['phone']		
+		'nrphone'=>$_POST['phone']
 	]);
 
 	$user->save();
@@ -394,7 +394,7 @@ $app->get("/forgot/reset", function() {
 $app->post("/forgot/reset", function() {
 
 	$forgot = User::validForgotDecrypt($_POST["code"]);
-	
+
 	User::setForgotUsed($forgot["idrecovery"]);
 
 	$user = new User();
@@ -467,10 +467,10 @@ $app->post("/profile", function(){
 
 	$user->update();
 
-	User::setSuccess("Dados alterados com sucesso!"); 
+	User::setSuccess("Dados alterados com sucesso!");
 
 	header('Location: /profile');
-	exit;		
+	exit;
 
 });
 
@@ -501,7 +501,7 @@ $app->get("/boleto/:idorder", function($idorder){
 	// DADOS DO BOLETO PARA O SEU CLIENTE
 	$dias_de_prazo_para_pagamento = 10;
 	$taxa_boleto = 5.00;
-	$data_venc = date("d/m/Y", time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006"; 
+	$data_venc = date("d/m/Y", time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006";
 
 	$valor_cobrado = formatPrice($order->getvltotal()); // Valor - REGRA: Sem pontos na milhar e tanto faz com "." ou "," ou com 1 ou 2 ou sem casa decimal
 	$valor_cobrado = str_replace(".", "", $valor_cobrado);
@@ -532,7 +532,7 @@ $app->get("/boleto/:idorder", function($idorder){
 	// DADOS OPCIONAIS DE ACORDO COM O BANCO OU CLIENTE
 	$dadosboleto["quantidade"] = "";
 	$dadosboleto["valor_unitario"] = "";
-	$dadosboleto["aceite"] = "";		
+	$dadosboleto["aceite"] = "";
 	$dadosboleto["especie"] = "R$";
 	$dadosboleto["especie_doc"] = "";
 
@@ -572,7 +572,7 @@ $app->get("/profile/orders", function(){
 	$page = new Page();
 
 	$page->setTpl("profile-orders", [
-		'orders'=>$user->getOrders()		
+		'orders'=>$user->getOrders()
 	]);
 
 });
@@ -596,7 +596,7 @@ $app->get("/profile/orders/:idorder", function($idorder){
 	$page->setTpl("profile-orders-detail", [
 		'order'=>$order->getValues(),
 		'cart'=>$cart->getValues(),
-		'products'=>$cart->getProducts()		
+		'products'=>$cart->getProducts()
 	]);
 
 });
@@ -644,7 +644,7 @@ $app->post("/profile/change-password", function(){
 
 	if ($_POST['current_pass'] === $_POST['new_pass']) {
 
-		User::setError("A sua nova senha deve ser diferente da atual."); 
+		User::setError("A sua nova senha deve ser diferente da atual.");
 		header("Location: /profile/change-password");
 		exit;
 
@@ -654,7 +654,7 @@ $app->post("/profile/change-password", function(){
 
 	if (!password_verify($_POST['current_pass'], $user->getdespassword())) {
 
-		User::setError("A senha está inválida."); 
+		User::setError("A senha está inválida.");
 		header("Location: /profile/change-password");
 		exit;
 
